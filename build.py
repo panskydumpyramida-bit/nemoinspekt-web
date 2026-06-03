@@ -178,6 +178,62 @@ map_svg = re.sub(r"<path\b([^>]*?)/?>", _path, _svg)
 map_html = map_svg + ('<div class="map-info" id="mapInfo"><b>14 krajů ČR</b>'
                       '<span>Najeďte na kraj nebo klikněte pro výběr</span></div>')
 
+# --- Oponentura: transparentní srovnání 3 verzí (kritérium: starý / rebuild / naše, 0–5) ---
+OP_COLS = ["Starý web", "Komerční rebuild", "Naše verze"]
+OPONENTURA = [
+    ("Moderní design", 2, 4, 5),
+    ("Úplnost webu (podstránky)", 5, 5, 2),
+    ("Ceník + kalkulačka", 4, 5, 0),
+    ("Tým + mapa inspektorů", 1, 4, 5),
+    ("Recenze / sociální důkaz", 4, 4, 3),
+    ("Blog & SEO obsah", 4, 5, 1),
+    ("Animace & interaktivita", 1, 3, 5),
+    ("Branding / nové logo", 1, 5, 5),
+    ("Rebrand intro video", 0, 0, 5),
+    ("EN verze", 3, 4, 0),
+]
+OP_AWARDS = [
+    ("Nejúplnější produkční web", "Komerční rebuild"),
+    ("Nejlepší motion &amp; rebrand launch", "Naše verze"),
+    ("Unikátní TV reference (ČT, Receptář)", "Starý web"),
+]
+
+def _dots(n):
+    return '<span class="op-dots">' + "".join(
+        ('<i class="on"></i>' if i < n else '<i></i>') for i in range(5)) + "</span>"
+
+_totals = [0, 0, 0]
+_oprows = ""
+for crit, *sc in OPONENTURA:
+    mx = max(sc)
+    for i, s in enumerate(sc):
+        _totals[i] += s
+    cells = "".join(
+        f'<td class="op-score{" op-win" if s == mx and s > 0 else ""}">{_dots(s)}</td>'
+        for s in sc)
+    _oprows += f"<tr><th>{crit}</th>{cells}</tr>"
+_max_total = max(_totals)
+_tcells = "".join(
+    f'<td class="op-total{" op-win" if _totals[i] == _max_total else ""}">{_totals[i]}<span>/50</span></td>'
+    for i in range(3))
+_oprows += f'<tr class="op-totalrow"><th>Celkem</th>{_tcells}</tr>'
+
+_awards = "".join(
+    f'<div class="op-award"><span class="op-medal"></span><div><b>{w}</b><span>{title}</span></div></div>'
+    for title, w in OP_AWARDS)
+
+oponentura_html = f'''<div class="op-intro">
+  <span class="eyebrow">Oponentura</span>
+  <h3>Srovnání tří verzí webu Nemoinspekt</h3>
+  <p>Transparentní pohled na to, kde každá verze stojí. Tahle „naše" verze vznikla jako <b>oponentura a proof-of-concept</b> motion vrstvy a rebrandu — ne jako náhrada produkčního webu.</p>
+</div>
+<div class="op-table-wrap"><table class="op-table">
+  <thead><tr><th>Kritérium</th><th>Starý web<span>nemoinspekt.cz</span></th><th>Komerční rebuild<span>dodavatel</span></th><th class="op-ours">Naše verze<span>tento web</span></th></tr></thead>
+  <tbody>{_oprows}</tbody>
+</table></div>
+<div class="op-awards">{_awards}</div>
+<p class="op-verdict"><b>Pořadí:</b> 1. Komerční rebuild &middot; 2. Naše verze &middot; 3. Starý web. Rebuild vede <b>úplností</b> (ceník, kalkulačka, blog, EN, 7 stránek služeb). Naše verze přidává <b>motion design, mapu na homepage a rebrand video</b> — ideální jako kampaňová launch stránka k rebrandu.</p>'''
+
 # recenze
 reviews_html = ""
 for i, (quote, author, meta) in enumerate(REVIEWS):
@@ -226,7 +282,7 @@ for token, val in {
     "{{LEAD}}": lead_html, "{{TEAM}}": team_html, "{{FILTERS}}": filter_html,
     "{{AUDIENCE}}": audience_html, "{{PRO}}": pro_html, "{{CHECKS}}": checks_html,
     "{{PROCESS}}": process_html, "{{FAQ}}": faq_html,
-    "{{MAP}}": map_html, "{{REVIEWS}}": reviews_html,
+    "{{MAP}}": map_html, "{{REVIEWS}}": reviews_html, "{{OPONENTURA}}": oponentura_html,
 }.items():
     HTML = HTML.replace(token, val)
 

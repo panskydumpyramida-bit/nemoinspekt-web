@@ -396,6 +396,46 @@ footer{background:var(--ink);color:rgba(255,255,255,.7);padding:64px 0 30px;marg
 .foot-play svg{width:24px;height:24px;fill:var(--green);background:rgba(139,177,77,.18);border-radius:50%;padding:6px;transition:.2s}
 .foot-play:hover svg{fill:#fff;background:var(--green)}
 
+/* ---------- oponentura modal ---------- */
+.op-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:flex-start;justify-content:center;
+  padding:40px 20px;background:rgba(28,31,30,.74);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  opacity:0;overflow-y:auto;transition:opacity .4s var(--ease)}
+.op-modal.show{display:flex;opacity:1}
+.op-card{position:relative;width:min(880px,100%);background:#fff;border-radius:22px;box-shadow:var(--shadow-lg);
+  padding:clamp(24px,4vw,44px);transform:translateY(20px) scale(.98);transition:transform .45s var(--ease);margin:auto}
+.op-modal.show .op-card{transform:none}
+.op-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border:none;border-radius:50%;
+  background:var(--bg);color:var(--ink);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s var(--ease);z-index:2}
+.op-close:hover{background:var(--green-soft);transform:rotate(90deg)}
+.op-intro{margin-bottom:22px;max-width:620px}
+.op-intro h3{font-size:clamp(22px,3vw,30px);margin:12px 0 12px}
+.op-intro p{color:var(--grey);font-size:15.5px}
+.op-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px}
+.op-table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:560px}
+.op-table th,.op-table td{padding:11px 12px;text-align:center;border-bottom:1px solid var(--line)}
+.op-table thead th{font-size:13.5px;font-weight:800;color:var(--ink);vertical-align:bottom;background:var(--bg)}
+.op-table thead th span{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:2px}
+.op-table thead th.op-ours{color:var(--green-d)}
+.op-table tbody th{text-align:left;font-weight:600;color:var(--ink);font-size:14.5px}
+.op-table tbody tr:hover{background:var(--bg)}
+.op-score.op-win{background:var(--green-soft)}
+.op-dots{display:inline-flex;gap:3px;align-items:center}
+.op-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.op-dots i.on{background:var(--green)}
+.op-totalrow th,.op-totalrow td{border-top:2px solid var(--ink);border-bottom:none;padding-top:14px;font-weight:800}
+.op-total{font-size:18px;color:var(--ink)}
+.op-total span{font-size:12px;color:var(--muted);font-weight:600}
+.op-total.op-win{color:var(--green-d)}
+.op-awards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
+.op-award{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.op-medal{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dd));flex-shrink:0;position:relative}
+.op-medal::after{content:"";position:absolute;inset:9px;border-radius:50%;border:2px solid rgba(255,255,255,.75)}
+.op-award b{font-size:14.5px;display:block;line-height:1.25}
+.op-award span{font-size:12px;color:var(--muted)}
+.op-verdict{font-size:14.5px;color:var(--grey);line-height:1.6;background:var(--green-soft);border-radius:12px;padding:16px 18px;margin:0}
+.op-verdict b{color:var(--ink)}
+@media(max-width:680px){.op-awards{grid-template-columns:1fr}}
+
 /* ---------- intro modal ---------- */
 body.modal-open{overflow:hidden}
 .intro-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;
@@ -475,6 +515,24 @@ body.modal-open{overflow:hidden}
       <p>Nové logo, stejná <span>jednička v inspekci nemovitostí</span>.</p>
       <a href="#kontakt" class="btn btn-primary" id="introEnter">Vstoupit na web <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
+  </div>
+</div>
+
+<!-- OPONENTURA MODAL -->
+<div class="op-modal" id="opModal" role="dialog" aria-modal="true" aria-label="Oponentura — srovnání verzí">
+  <div class="op-card">
+    <button class="op-close" id="opClose" aria-label="Zavřít">&times;</button>
+    <div class="op-body"><div class="op-intro">
+  <span class="eyebrow">Oponentura</span>
+  <h3>Srovnání tří verzí webu Nemoinspekt</h3>
+  <p>Transparentní pohled na to, kde každá verze stojí. Tahle „naše" verze vznikla jako <b>oponentura a proof-of-concept</b> motion vrstvy a rebrandu — ne jako náhrada produkčního webu.</p>
+</div>
+<div class="op-table-wrap"><table class="op-table">
+  <thead><tr><th>Kritérium</th><th>Starý web<span>nemoinspekt.cz</span></th><th>Komerční rebuild<span>dodavatel</span></th><th class="op-ours">Naše verze<span>tento web</span></th></tr></thead>
+  <tbody><tr><th>Moderní design</th><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td></tr><tr><th>Úplnost webu (podstránky)</th><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td></tr><tr><th>Ceník + kalkulačka</th><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="op-score"><span class="op-dots"><i></i><i></i><i></i><i></i><i></i></span></td></tr><tr><th>Tým + mapa inspektorů</th><td class="op-score"><span class="op-dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td></tr><tr><th>Recenze / sociální důkaz</th><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td></tr><tr><th>Blog & SEO obsah</th><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="op-score"><span class="op-dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td></tr><tr><th>Animace & interaktivita</th><td class="op-score"><span class="op-dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td></tr><tr><th>Branding / nové logo</th><td class="op-score"><span class="op-dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td></tr><tr><th>Rebrand intro video</th><td class="op-score"><span class="op-dots"><i></i><i></i><i></i><i></i><i></i></span></td><td class="op-score"><span class="op-dots"><i></i><i></i><i></i><i></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td></tr><tr><th>EN verze</th><td class="op-score"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td class="op-score op-win"><span class="op-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td class="op-score"><span class="op-dots"><i></i><i></i><i></i><i></i><i></i></span></td></tr><tr class="op-totalrow"><th>Celkem</th><td class="op-total">25<span>/50</span></td><td class="op-total op-win">39<span>/50</span></td><td class="op-total">31<span>/50</span></td></tr></tbody>
+</table></div>
+<div class="op-awards"><div class="op-award"><span class="op-medal"></span><div><b>Komerční rebuild</b><span>Nejúplnější produkční web</span></div></div><div class="op-award"><span class="op-medal"></span><div><b>Naše verze</b><span>Nejlepší motion &amp; rebrand launch</span></div></div><div class="op-award"><span class="op-medal"></span><div><b>Starý web</b><span>Unikátní TV reference (ČT, Receptář)</span></div></div></div>
+<p class="op-verdict"><b>Pořadí:</b> 1. Komerční rebuild &middot; 2. Naše verze &middot; 3. Starý web. Rebuild vede <b>úplností</b> (ceník, kalkulačka, blog, EN, 7 stránek služeb). Naše verze přidává <b>motion design, mapu na homepage a rebrand video</b> — ideální jako kampaňová launch stránka k rebrandu.</p></div>
   </div>
 </div>
 
@@ -1048,6 +1106,7 @@ body.modal-open{overflow:hidden}
         <p>Nemoinspekt s.r.o.<br>Plavecká 2, 128 00 Praha 2<br>IČ: 24236357</p>
         <p class="tag">Jednička v inspekci nemovitostí v ČR od roku 2012.</p>
         <a href="#" class="foot-play" data-play-intro><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Přehrát naše nové logo</a>
+        <a href="#" class="foot-play" data-open-op><svg viewBox="0 0 24 24"><path d="M4 13h4v7H4zM10 4h4v16h-4zM16 9h4v11h-4z"/></svg> Oponentura — srovnání verzí</a>
       </div>
       <div class="foot-col">
         <h5>Služby</h5>
@@ -1260,6 +1319,17 @@ document.getElementById('form').addEventListener('submit',(e)=>{
       : '<svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg> Ztlumit';
     if(!v.muted){const p=v.play();if(p)p.catch(()=>{});}
   });
+})();
+
+// ---------- oponentura modal ----------
+(function(){
+  const m=document.getElementById('opModal'); if(!m) return;
+  const open=()=>{document.body.classList.add('modal-open');m.classList.add('show');};
+  const close=()=>{m.classList.remove('show');document.body.classList.remove('modal-open');};
+  document.querySelectorAll('[data-open-op]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();open();}));
+  document.getElementById('opClose').addEventListener('click',close);
+  m.addEventListener('click',e=>{if(e.target===m)close();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&m.classList.contains('show'))close();});
 })();
 </script>
 </body>
