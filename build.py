@@ -234,6 +234,54 @@ oponentura_html = f'''<div class="op-intro">
 <div class="op-awards">{_awards}</div>
 <p class="op-verdict"><b>Pořadí:</b> 1. Komerční rebuild &middot; 2. Naše verze &middot; 3. Starý web. Rebuild vede <b>úplností</b> (ceník, kalkulačka, blog, EN, 7 stránek služeb). Naše verze přidává <b>motion design, mapu na homepage a rebrand video</b> — ideální jako kampaňová launch stránka k rebrandu.</p>'''
 
+# --- Slabiny rebuildu + konkurence + příležitosti (deep-research, 06/2026) ---
+OP_GAPS = [
+    ("Pojištění odpovědnosti se neukazuje", "Rebuild ho nikde neuvádí. Konkurent <b>Inspekce Lukeš</b> jím vědomě buduje důvěru („pojištění profesní odpovědnosti je naprostá samozřejmost&ldquo;)."),
+    ("Žádná online rezervace termínu", "Jen poptávkový formulář. Nemá ji ale <b>nikdo</b> na českém trhu → největší šance se odlišit (zahraniční laťka: HomeInspections.com — vybrat inspektora, datum, potvrdit, zpráva do 24 h)."),
+    ("Vzorová zpráva jen k prohlédnutí", "Varianty Standard/Premium k náhledu, ale <b>ne ke stažení v PDF</b>. Stejně na tom je i konkurence."),
+    ("Slabší &bdquo;tvrdé&ldquo; certifikační důkazy", "Zmiňuje ČKAIT/ČKA, ale <b>Ensan</b> ukazuje konkrétní <b>čísla certifikátů</b> (AIN č.&nbsp;00063, TÜV, ČSOS č.&nbsp;014) — silnější důkaz."),
+    ("Chybí případové studie a live chat", "Jen textové recenze + WhatsApp. Případovky („ušetřili jsme 1,2&nbsp;mil.&ldquo;) a chat jsou napříč trhem slabé."),
+]
+OP_COMPETITORS = [
+    ("Nemoinspekt", "kalkulačka, od ~5 000 Kč", "AIN · ČKAIT · ČKA · 30+ inspektorů + mapa", "ne (poptávka)", True),
+    ("NEMOPAS (sk. DEK)", "byt od 9 000 · dům od 11 000 Kč", "AIN · garant znalce DEKPROJEKT", "ne", False),
+    ("Inspekce Lukeš", "byt od 11 990 · dům od 14 990 Kč", "ČKAIT · pojištění odpovědnosti", "ne", False),
+    ("Ensan", "od 1 500 / 2 900 / 3 900 Kč", "AIN č.00063 · TÜV · ČSOS č.014", "ne", False),
+]
+OP_OPPS = [
+    "Plně online <b>rezervace termínu</b> (vybrat inspektora → datum → potvrzení) — v ČR to nemá nikdo, vede k odlišení.",
+    "<b>Stažitelná vzorová zpráva v PDF</b> přímo u CTA / ceníku.",
+    "<b>Pojištění odpovědnosti</b> + certifikační <b>loga a čísla</b> (AIN, ČKAIT, ČKA) jako viditelné badges.",
+    "<b>Případové studie</b> s konkrétní uchráněnou částkou + <b>live chat</b>.",
+    "Jasný <b>příslib rychlosti</b> (zpráva do 24–72 h) jako konkurenční výhoda.",
+]
+
+_gaps = "".join(f"<li><b>{g}</b><span>{d}</span></li>" for g, d in OP_GAPS)
+_comp = ""
+for firma, ceny, duvera, rez, ours in OP_COMPETITORS:
+    cls = ' class="op-ours-row"' if ours else ""
+    _comp += f"<tr{cls}><th>{firma}</th><td>{ceny}</td><td>{duvera}</td><td class='op-c'>{rez}</td></tr>"
+_opps = "".join(f"<li>{o}</li>" for o in OP_OPPS)
+
+oponentura_html += f'''
+<div class="op-section">
+  <h4>Slabiny komerčního rebuildu</h4>
+  <ul class="op-gaps">{_gaps}</ul>
+</div>
+<div class="op-section">
+  <h4>Konkurence na českém trhu</h4>
+  <p class="op-note">Nemoinspekt je jednou ze 4 dominantních firem (dle ČTK: NEMOPAS, Bytecheck, Nemoinspekt, Home Experts) sdružených v <b>AIN</b> — Asociaci inspektorů nemovitostí (~80–120 certifikovaných inspektorů, ~80&nbsp;% trhu).</p>
+  <div class="op-table-wrap"><table class="op-table op-comp">
+    <thead><tr><th>Firma</th><th>Orientační ceny</th><th>Klíčová důvěra</th><th>Online rezervace</th></tr></thead>
+    <tbody>{_comp}</tbody>
+  </table></div>
+</div>
+<div class="op-section">
+  <h4>Příležitosti — kde může web vést trh</h4>
+  <ol class="op-opps">{_opps}</ol>
+</div>
+<p class="op-source"><b>Metodika:</b> konkurenční data z deep-research (5 úhlů, 20 zdrojů, 89 tvrzení → 18 ověřeno adversariální verifikací 3 hlasy, 7 vyvráceno). Ceny jsou orientační „od&ldquo;, ověřeno 06/2026. Zdroje: ain.cz, nemopas.cz, inspekcelukes.cz, ensan.cz, ASHI Standard of Practice, HomeInspections.com.</p>'''
+
 # recenze
 reviews_html = ""
 for i, (quote, author, meta) in enumerate(REVIEWS):
