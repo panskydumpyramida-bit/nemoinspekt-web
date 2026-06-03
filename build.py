@@ -7,9 +7,28 @@ ROOT = os.path.expanduser("~/workspace/nemoinspekt-web")
 
 # ---------------------------------------------------------------- DATA
 LEADERSHIP = [
+    ("jan-vales", "Ing. Jan Valeš", "Jednatel společnosti"),
     ("tomas-zima", "Ing. Tomáš Zima", "Ředitel společnosti · Hlavní inspektor · Předseda ZK AIN"),
     ("jan-brezina", "Ing. Jan Březina", "Hlavní inspektor · Revizor zakázek · ČKAIT"),
 ]
+
+REVIEWS = [
+    ("Pomůže vám rozhodovat se hlavou. Zachránila mě před koupí nádherného domu, který vůbec nebyl v tak dobrém stavu, jak bylo prezentováno.", "Alžběta Trusinová", "Starší nemovitost · inspekce před koupí"),
+    ("Díky závěrečné zprávě máme důkladné zhodnocení stavebně-technického stavu domu. Lépe plánujeme a řídíme opravy v souladu s dlouhodobým plánem.", "Eva Širůčková", "Bytový dům · BD Zenklova, Praha"),
+    ("Pan architekt z Nemoinspekt ušetřil našemu SVJ 500 000 Kč. Střecha, u které nám všichni tvrdili, že dorazila na konec životnosti, měla jen špatně udělanou okapnici.", "Marek Wiesner", "Bytový dům · audit pro SVJ"),
+    ("Inspektorka se nenechala od zástupců developera odbýt a trvala na zaznamenání i nejmenších drobností. Při předávce jsem cítil, že nejsem ta slabší strana.", "Tomáš Koller", "Novostavba · přejímka novostavby v Praze"),
+    ("Inspekce stála 10–15 tisíc. Na základě jejích zjištění se nám podařilo srazit cenu o 1,2 milionu. Dobrá investice.", "Tomáš Novella", "Starší nemovitost · inspekce před koupí"),
+    ("We do not speak Czech and were looking for English-speaking professionals. Both Eliška at reception and inspector Kamila were helpful and professional. Highly recommend.", "Tuhin Khan", "Starší nemovitost · house inspection · English service"),
+]
+
+# kraj -> (zkratka, sloupec, řádek) pro dlaždicovou mapu ČR
+MAP_POS = {
+    "Ústecký": ("ULK", 3, 1), "Liberecký": ("LBK", 4, 1), "Královéhradecký": ("HKK", 5, 1),
+    "Karlovarský": ("KVK", 1, 2), "Praha": ("PHA", 3, 2), "Pardubický": ("PAK", 5, 2),
+    "Olomoucký": ("OLK", 6, 2), "Moravskoslezský": ("MSK", 7, 2),
+    "Plzeňský": ("PLK", 1, 3), "Středočeský": ("STČ", 2, 3), "Vysočina": ("VYS", 4, 3), "Zlínský": ("ZLK", 6, 3),
+    "Jihočeský": ("JHČ", 2, 4), "Jihomoravský": ("JHM", 4, 4),
+}
 
 INSPECTORS = [
     ("marie-vyskocilova", "Ing. arch. Marie Vyskočilová", "Manažerka segmentu bytových domů", "Praha"),
@@ -129,6 +148,28 @@ for _, _, _, reg in INSPECTORS:
 filter_html = '<button class="filter-btn active" data-filter="all">Všechny kraje</button>' + \
     "".join(f'<button class="filter-btn" data-filter="{r}">{r}</button>' for r in regions)
 
+# počty inspektorů na kraj
+counts = {}
+for _, _, _, reg in INSPECTORS:
+    counts[reg] = counts.get(reg, 0) + 1
+
+# dlaždicová mapa ČR
+star = '<svg viewBox="0 0 24 24"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>'
+map_html = ""
+for region, (abbr, col, row) in MAP_POS.items():
+    n = counts.get(region, 0)
+    map_html += (f'<button class="cz-tile" data-filter="{region}" style="grid-column:{col};grid-row:{row}" '
+                 f'title="{region} kraj — {n} inspektorů"><span class="cz-abbr">{abbr}</span>'
+                 f'<span class="cz-num">{n}</span><span class="cz-name">{region}</span></button>')
+
+# recenze
+reviews_html = ""
+for i, (quote, author, meta) in enumerate(REVIEWS):
+    reviews_html += (f'<div class="review-card">'
+                     f'<div class="stars">{star*5}</div>'
+                     f'<blockquote>„{quote}"</blockquote>'
+                     f'<div class="who">{author}<span>{meta}</span></div></div>')
+
 audience_html = ""
 for i, (icon, title, desc, href) in enumerate(AUDIENCE):
     audience_html += f'''<a class="route reveal" href="{href}" style="transition-delay:{i*90}ms">
@@ -169,6 +210,7 @@ for token, val in {
     "{{LEAD}}": lead_html, "{{TEAM}}": team_html, "{{FILTERS}}": filter_html,
     "{{AUDIENCE}}": audience_html, "{{PRO}}": pro_html, "{{CHECKS}}": checks_html,
     "{{PROCESS}}": process_html, "{{FAQ}}": faq_html,
+    "{{MAP}}": map_html, "{{REVIEWS}}": reviews_html,
 }.items():
     HTML = HTML.replace(token, val)
 
