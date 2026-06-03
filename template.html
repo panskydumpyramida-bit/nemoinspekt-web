@@ -784,6 +784,8 @@ body.modal-open{overflow:hidden}
 // ---------- drag / swipe pro carousely ----------
 function enableDrag(track, api){
   if(!track) return;
+  const go=(d)=>{ api.setIdx(Math.max(0,Math.min(api.max(), api.idx()+d))); api.render(); };
+  // --- tažení (myš + touch) ---
   let sx=0, drag=false, mv=0, st=0;
   const down=(e)=>{ if(api.active && !api.active()) return; drag=true;
     sx=(e.touches?e.touches[0].clientX:e.clientX); mv=0; st=api.step();
@@ -791,13 +793,34 @@ function enableDrag(track, api){
   const move=(e)=>{ if(!drag) return; mv=(e.touches?e.touches[0].clientX:e.clientX)-sx;
     track.style.transform='translateX('+(-api.idx()*st+mv)+'px)'; };
   const up=()=>{ if(!drag) return; drag=false; track.style.transition=''; track.style.cursor='grab';
-    if(Math.abs(mv)>12){ const d=Math.round(-mv/(st||1));
-      api.setIdx(Math.max(0,Math.min(api.max(), api.idx()+d))); }
+    if(Math.abs(mv)>12) go(Math.round(-mv/(st||1)));
     api.render(); };
   track.addEventListener('pointerdown',down);
   addEventListener('pointermove',move,{passive:true});
   addEventListener('pointerup',up); addEventListener('pointercancel',up);
   track.style.cursor='grab';
+  // --- horizontální scroll na touchpadu ---
+  let wAcc=0, wLock=false, wTO;
+  track.addEventListener('wheel',(e)=>{
+    if(api.active && !api.active()) return;
+    if(Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;   // jen vodorovné gesto
+    e.preventDefault();
+    if(wLock) return;
+    wAcc += e.deltaX;
+    if(Math.abs(wAcc) > 30){ const d=wAcc>0?1:-1; wAcc=0; wLock=true; go(d); setTimeout(()=>wLock=false,350); }
+    clearTimeout(wTO); wTO=setTimeout(()=>wAcc=0,150);
+  }, {passive:false});
+  // --- šipky vlevo/vpravo (při najetí myší) ---
+  let hov=false;
+  track.addEventListener('mouseenter',()=>hov=true);
+  track.addEventListener('mouseleave',()=>hov=false);
+  addEventListener('keydown',(e)=>{
+    if(!hov || (api.active && !api.active())) return;
+    const tag=(document.activeElement||{}).tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA') return;
+    if(e.key==='ArrowLeft'){ e.preventDefault(); go(-1); }
+    else if(e.key==='ArrowRight'){ e.preventDefault(); go(1); }
+  });
 }
 
 // ---------- reveal on scroll ----------
