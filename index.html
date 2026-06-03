@@ -237,10 +237,16 @@ ul.checks .ck{width:21px;height:21px;flex-shrink:0;fill:none;stroke:var(--green)
   border:1.5px solid var(--line);background:#fff;color:var(--grey);cursor:pointer;transition:.25s}
 .filter-btn:hover{border-color:var(--green);color:var(--green-d)}
 .filter-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-.team{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
-.member{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
-  transition:.45s var(--ease)}
+.team-carousel{overflow:hidden}
+.team{display:flex;gap:22px;transition:transform .55s var(--ease)}
+.member{flex:0 0 calc((100% - 66px)/4);box-sizing:border-box;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
 .member.hide{display:none}
+.team-controls{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:28px}
+.team-count{font-size:14px;font-weight:600;color:var(--muted)}
+.rev-btn:disabled{opacity:.35;cursor:default}
+.rev-btn:disabled:hover{background:#fff;border-color:var(--line)}
+.rev-btn:disabled:hover svg{stroke:var(--ink)}
 .member:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
 .member-photo{aspect-ratio:1;overflow:hidden;background:var(--green-soft);position:relative}
 .member-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(100%) contrast(1.03);
@@ -430,7 +436,7 @@ body.modal-open{overflow:hidden}
   .trust-item:nth-child(2){border-right:none}
   .routes,.pros,.steps{grid-template-columns:1fr 1fr}
   .checks-wrap,.about,.review-wrap,.contact-grid{grid-template-columns:1fr;gap:34px}
-  .team{grid-template-columns:repeat(3,1fr)}
+  .member{flex:0 0 calc((100% - 22px)/2)}
   .steps::before{display:none}
 }
 @media(max-width:680px){
@@ -440,7 +446,7 @@ body.modal-open{overflow:hidden}
   .hero{padding:120px 0 60px}
   .routes,.pros,.steps,.team,.lead-row,.row2,.about-stats,.foot-grid{grid-template-columns:1fr}
   .trust .wrap{grid-template-columns:1fr}.trust-item{border-right:none}
-  .team{grid-template-columns:1fr 1fr;gap:14px}
+  .member{flex:0 0 100%}
   .foot-grid{gap:30px}
   .nav-open{display:flex !important;position:fixed;inset:78px 16px auto;flex-direction:column;
     background:#fff;border-radius:20px;padding:14px;box-shadow:var(--shadow-lg);z-index:99}
@@ -695,7 +701,7 @@ body.modal-open{overflow:hidden}
 </svg><div class="map-info" id="mapInfo"><b>14 krajů ČR</b><span>Najeďte na kraj nebo klikněte pro výběr</span></div></div>
       <button class="cz-reset active" data-filter="all">Zobrazit všechny inspektory</button>
     </div>
-    <div class="team" id="team"><article class="member reveal" style="transition-delay:0ms" data-region="Praha">
+    <div class="team-carousel"><div class="team" id="team"><article class="member reveal" style="transition-delay:0ms" data-region="Praha">
   <div class="member-photo"><img src="assets/team/marie-vyskocilova.webp" alt="Ing. arch. Marie Vyskočilová" loading="lazy" width="300" height="300"></div>
   <div class="member-meta">
     <span class="member-region">Praha</span>
@@ -919,7 +925,12 @@ body.modal-open{overflow:hidden}
     <p>Inspektor</p>
     <div class="chips"><span class="chip">Autorizovaný architekt</span></div>
   </div>
-</article></div>
+</article></div></div>
+    <div class="team-controls">
+      <button class="rev-btn" id="teamPrev" aria-label="Předchozí inspektoři"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="rev-btn" id="teamNext" aria-label="Další inspektoři"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <span class="team-count" id="teamCount"></span>
+    </div>
   </div>
 </section>
 
@@ -1102,20 +1113,39 @@ const burger=document.getElementById('burger'),nav=document.getElementById('nav'
 burger.addEventListener('click',()=>nav.classList.toggle('nav-open'));
 nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('nav-open')));
 
-// ---------- team map filter ----------
+// ---------- team map filter + carousel ----------
 const mapWrap=document.querySelector('.cz-map-wrap'),team=document.getElementById('team'),mapInfo=document.getElementById('mapInfo');
 const inspWord=n=>{n=+n;return n===1?'inspektor':(n>=2&&n<=4?'inspektoři':'inspektorů');};
 function setInfo(p){if(!mapInfo)return;mapInfo.innerHTML=(p&&p.dataset.name)
   ?'<b>'+p.dataset.name+'</b><span>'+p.dataset.count+' '+inspWord(p.dataset.count)+'</span>'
   :'<b>14 krajů ČR</b><span>Najeďte na kraj nebo klikněte pro výběr</span>';}
+const tCards=team?[...team.children]:[],tPrev=document.getElementById('teamPrev'),tNext=document.getElementById('teamNext'),tCount=document.getElementById('teamCount');
+let tIdx=0;
+const tPer=()=>innerWidth>1000?4:(innerWidth>680?2:1);
+const tVis=()=>tCards.filter(c=>!c.classList.contains('hide'));
+const tMax=()=>Math.max(0,tVis().length-tPer());
+function tRender(){
+  tIdx=Math.min(tIdx,tMax());
+  const v=tVis(),per=tPer(),step=v[0]?v[0].getBoundingClientRect().width+22:0;
+  team.style.transform='translateX('+(-tIdx*step)+'px)';
+  const total=v.length,need=total>per;
+  if(tCount)tCount.textContent=total?((tIdx+1)+'.–'+Math.min(tIdx+per,total)+'. z '+total+' inspektorů'):'';
+  [tPrev,tNext].forEach(b=>{if(b){b.style.display=need?'':'none';}});
+  if(tPrev)tPrev.disabled=tIdx<=0;
+  if(tNext)tNext.disabled=tIdx>=tMax();
+}
+if(tPrev)tPrev.onclick=()=>{tIdx=Math.max(0,tIdx-1);tRender();};
+if(tNext)tNext.onclick=()=>{tIdx=Math.min(tMax(),tIdx+1);tRender();};
+let trt;addEventListener('resize',()=>{clearTimeout(trt);trt=setTimeout(tRender,150);});
+if(team)tRender();
 if(mapWrap){
   mapWrap.addEventListener('click',(e)=>{
     const b=e.target.closest('[data-filter]');if(!b)return;
     const f=b.dataset.filter;
     mapWrap.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));
-    team.querySelectorAll('.member').forEach(m=>m.classList.toggle('hide',f!=='all'&&m.dataset.region!==f));
-    setInfo(f==='all'?null:b);
-    if(f!=='all')team.scrollIntoView({behavior:'smooth',block:'nearest'});
+    tCards.forEach(m=>m.classList.toggle('hide',f!=='all'&&m.dataset.region!==f));
+    setInfo(f==='all'?null:b);tIdx=0;tRender();
+    if(f!=='all')document.getElementById('tym').scrollIntoView({behavior:'smooth',block:'start'});
   });
   mapWrap.addEventListener('mouseover',(e)=>{const p=e.target.closest('.map-region');if(p)setInfo(p);});
   mapWrap.addEventListener('mouseleave',()=>setInfo(mapWrap.querySelector('.map-region.active')));
