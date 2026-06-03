@@ -153,14 +153,30 @@ counts = {}
 for _, _, _, reg in INSPECTORS:
     counts[reg] = counts.get(reg, 0) + 1
 
-# dlaždicová mapa ČR
 star = '<svg viewBox="0 0 24 24"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>'
-map_html = ""
-for region, (abbr, col, row) in MAP_POS.items():
-    n = counts.get(region, 0)
-    map_html += (f'<button class="cz-tile" data-filter="{region}" style="grid-column:{col};grid-row:{row}" '
-                 f'title="{region} kraj — {n} inspektorů"><span class="cz-abbr">{abbr}</span>'
-                 f'<span class="cz-num">{n}</span><span class="cz-name">{region}</span></button>')
+
+# --- reálná geografická SVG mapa ČR (z prototypu), kraje obarvené dle počtu inspektorů ---
+def _norm(r):
+    return r.replace("Kraj Vysočina", "Vysočina").replace(" kraj", "").strip()
+_svg = open(os.path.join(ROOT, "assets", "cz-map.svg"), encoding="utf-8").read()
+_svg = re.sub(r"-?\d+\.\d{2,}", lambda m: f"{float(m.group()):.1f}", _svg)  # zaokrouhli souřadnice
+_maxc = max(counts.values())
+def _path(m):
+    a = m.group(1)
+    dm = re.search(r'\sd="([^"]*)"', a)
+    if not dm:
+        return m.group(0)
+    d = 'd="' + dm.group(1) + '"'
+    rm = re.search(r'data-region="([^"]+)"', a)
+    if not rm:
+        return f'<path class="map-bg" {d}/>'
+    region = rm.group(1); short = _norm(region); n = counts.get(short, 0)
+    shade = 0.16 + 0.52 * (n - 1) / max(1, _maxc - 1)
+    return (f'<path class="map-region" data-filter="{short}" data-count="{n}" data-name="{region}" '
+            f'fill="rgba(139,177,77,{shade:.2f})" {d}/>')
+map_svg = re.sub(r"<path\b([^>]*?)/?>", _path, _svg)
+map_html = map_svg + ('<div class="map-info" id="mapInfo"><b>14 krajů ČR</b>'
+                      '<span>Najeďte na kraj nebo klikněte pro výběr</span></div>')
 
 # recenze
 reviews_html = ""

@@ -325,19 +325,15 @@ footer{background:var(--ink);color:rgba(255,255,255,.7);padding:64px 0 30px;marg
 /* ---------- mapa ČR ---------- */
 .cz-map-wrap{margin-bottom:36px}
 .cz-hint{text-align:center;color:var(--muted);font-size:15px;margin-bottom:22px}
-.cz-map{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:9px;max-width:560px;margin:0 auto 20px}
-.cz-tile{position:relative;aspect-ratio:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:.22s var(--ease);font-family:inherit;padding:4px}
-.cz-tile:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:var(--shadow);z-index:2}
-.cz-tile.active{background:var(--green);border-color:var(--green);box-shadow:0 10px 22px -8px rgba(139,177,77,.6)}
-.cz-abbr{font-size:13px;font-weight:800;color:var(--ink)}
-.cz-tile.active .cz-abbr{color:#fff}
-.cz-num{font-size:11px;font-weight:700;color:var(--green-d)}
-.cz-tile.active .cz-num{color:#fff}
-.cz-name{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
-  font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;z-index:6}
-.cz-name::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--ink)}
-.cz-tile:hover .cz-name{opacity:1}
+.cz-map{max-width:680px;margin:0 auto}
+.cz-map svg{width:100%;height:auto;display:block;overflow:visible}
+.map-region{stroke:#fff;stroke-width:1.1;cursor:pointer;transition:fill .22s var(--ease)}
+.map-region:hover{fill:var(--green)}
+.map-region.active{fill:var(--green-d)}
+.map-bg{fill:#EDEBE5;stroke:none;pointer-events:none}
+.map-info{text-align:center;min-height:48px;margin:10px auto 18px}
+.map-info b{display:block;font-size:18px;color:var(--ink);letter-spacing:-.01em}
+.map-info span{font-size:14px;color:var(--muted)}
 .cz-reset{display:block;margin:0 auto;font-family:inherit;font-size:14px;font-weight:700;padding:11px 22px;border-radius:100px;
   border:1.5px solid var(--line);background:#fff;color:var(--grey);cursor:pointer;transition:.25s}
 .cz-reset:hover{border-color:var(--green);color:var(--green-d)}
@@ -807,15 +803,22 @@ burger.addEventListener('click',()=>nav.classList.toggle('nav-open'));
 nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('nav-open')));
 
 // ---------- team map filter ----------
-const mapWrap=document.querySelector('.cz-map-wrap'),team=document.getElementById('team');
+const mapWrap=document.querySelector('.cz-map-wrap'),team=document.getElementById('team'),mapInfo=document.getElementById('mapInfo');
+const inspWord=n=>{n=+n;return n===1?'inspektor':(n>=2&&n<=4?'inspektoři':'inspektorů');};
+function setInfo(p){if(!mapInfo)return;mapInfo.innerHTML=(p&&p.dataset.name)
+  ?'<b>'+p.dataset.name+'</b><span>'+p.dataset.count+' '+inspWord(p.dataset.count)+'</span>'
+  :'<b>14 krajů ČR</b><span>Najeďte na kraj nebo klikněte pro výběr</span>';}
 if(mapWrap){
   mapWrap.addEventListener('click',(e)=>{
     const b=e.target.closest('[data-filter]');if(!b)return;
     const f=b.dataset.filter;
     mapWrap.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));
     team.querySelectorAll('.member').forEach(m=>m.classList.toggle('hide',f!=='all'&&m.dataset.region!==f));
+    setInfo(f==='all'?null:b);
     if(f!=='all')team.scrollIntoView({behavior:'smooth',block:'nearest'});
   });
+  mapWrap.addEventListener('mouseover',(e)=>{const p=e.target.closest('.map-region');if(p)setInfo(p);});
+  mapWrap.addEventListener('mouseleave',()=>setInfo(mapWrap.querySelector('.map-region.active')));
 }
 
 // ---------- reviews carousel ----------
